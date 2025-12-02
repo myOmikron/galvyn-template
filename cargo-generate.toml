@@ -2,7 +2,6 @@
 ignore = [
     "./frontend/package-lock.json",
     "./Cargo.lock",
-    "./post-script.rhai"
 ]
 
 [hooks]
