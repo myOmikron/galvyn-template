@@ -33,3 +33,11 @@ Make an initial commit:
 cd my-project
 git add -A && git commit -m "Initial commit"
 ```
+
+Initialize frontend:
+
+```bash
+pushd frontend
+npm ci
+popd
+```
