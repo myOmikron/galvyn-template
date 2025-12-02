@@ -1,4 +1,5 @@
 import { ERROR_STORE } from "src/context/error-context";
+import { Configuration, RequiredError, ResponseError } from "src/api/generated";
 
 /** Hyphen separated uuid */
 export type UUID = string;
@@ -7,7 +8,8 @@ const configuration = new Configuration({
     basePath: window.location.origin,
 });
 
-const defaultApi = new DefaultApi(configuration);
+// TODO: uncomment once the generated API is ready
+// const defaultApi = new DefaultApi(configuration);
 
 export const Api = {};
 
