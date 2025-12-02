@@ -29,7 +29,7 @@ apt-get install -y libssl-dev ca-certificates
 EOF
 
 # Copy startup script
-COPY ./build/bnv-manager/startup.sh /
+COPY ./build/webserver/startup.sh /
 RUN chmod +x /startup.sh
 
 # Copy the executable from the "build" stage.
@@ -38,14 +38,13 @@ COPY --from=buildrust /bin/server /bin/
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/develop/develop-images/dockerfile_best-practices/   #user
 ARG UID=1000
-RUN adduser \
-    --disabled-password \
-    --gecos "" \
-    --home "/nonexistent" \
+RUN useradd \
+    --home-dir "/nonexistent" \
     --shell "/sbin/nologin" \
     --no-create-home \
     --uid "${UID}" \
     appuser
+
 
 RUN mkdir /var/lib/webserver /migrations
 RUN chown ${UID} /var/lib/webserver /migrations

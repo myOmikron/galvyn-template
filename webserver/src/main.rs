@@ -9,7 +9,6 @@
 )]
 
 use std::error::Error;
-use std::fs;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
 use std::net::SocketAddr;
@@ -19,8 +18,10 @@ use galvyn::Galvyn;
 use galvyn::GalvynSetup;
 use galvyn::contrib::settings::ApplicationSettingsExt;
 use galvyn::contrib::settings::SettingsStore;
+use galvyn::core::DatabaseSetup;
 use galvyn::core::re_exports::rorm;
 use galvyn::rorm::Database;
+use galvyn::rorm::DatabaseConfiguration;
 use galvyn::rorm::config::DatabaseConfig;
 use tracing::level_filters::LevelFilter;
 use tracing_subscriber::EnvFilter;
@@ -58,6 +59,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     match cli.command {
         Command::Start => start().await?,
+        #[cfg(debug_assertions)]
         Command::MakeMigrations { migrations_dir } => make_migrations(migrations_dir).await?,
         Command::Migrate { migrations_dir } => migrate(migrations_dir).await?,
     }
@@ -68,7 +70,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 async fn start() -> Result<(), Box<dyn Error>> {
     #[expect(clippy::unit_arg)]
     Galvyn::builder(GalvynSetup::default())
-        .register_module::<Database>(Default::default())
+        .register_module::<Database>(DatabaseSetup::Custom(DatabaseConfiguration::new(
+            DB.clone(),
+        )))
         .register_module::<SettingsStore>(Default::default())
         .register_module::<<modules::settings::Settings as ApplicationSettingsExt>::Module>(
             Default::default(),
@@ -82,13 +86,14 @@ async fn start() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+#[cfg(debug_assertions)]
 async fn make_migrations(migration_dir: String) -> Result<(), Box<dyn Error>> {
     use std::io::Write;
 
     /// Temporary file to store models in
     const MODELS: &str = "/tmp/.models.json";
 
-    let mut file = fs::File::create(MODELS)?;
+    let mut file = std::fs::File::create(MODELS)?;
     rorm::write_models(&mut file)?;
     file.flush()?;
 
@@ -102,7 +107,7 @@ async fn make_migrations(migration_dir: String) -> Result<(), Box<dyn Error>> {
         },
     )?;
 
-    fs::remove_file(MODELS)?;
+    std::fs::remove_file(MODELS)?;
     Ok(())
 }
 
