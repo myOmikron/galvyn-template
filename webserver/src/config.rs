@@ -36,7 +36,7 @@ pub fn load_env() -> Result<(), Vec<&'static EnvError>> {
 /// The url this server is reachable under
 ///
 /// # Used for
-/// - generating links which should point back to bnv-manager
+/// - generating links which should point back to webserver
 pub static ORIGIN: EnvVar<Url> = EnvVar::required("ORIGIN");
 
 /// The database name
